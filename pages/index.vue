@@ -1,9 +1,9 @@
 <template>
     <div>
-        <p>Index Page</p>
+        <h2 class="text-2xl mb-4 font-bold">Feed</h2>
+        <p>Recipes: {{ recipes }}</p>
     </div>
 </template>
 <script setup lang="ts">
-    let { data: recipes } = await useFetch('/api/recipes')
-    console.log(recipes.value)
+    let recipes = await $fetch('/api/recipes')
 </script>
