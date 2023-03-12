@@ -1,4 +1,8 @@
 <template>
+    <div v-if="!current_recipe || current_recipe === {}">
+        <h2 class="text-2xl font-bold mb-4">Recipe not found.</h2>
+        <NuxtLink to="/">Home</NuxtLink>
+    </div>
     <div>
         <h2 class="text-2xl font-bold mb-4">Edit Recipe</h2>
         <form @submit.prevent="handleSubmit" class="w-full max-w-lg">
@@ -47,14 +51,14 @@
                         <label class="block tracking-wide text-gray-700 text-xs font-bold mb-2" for="recipe-servings">
                             Prep Time (mins)
                         </label>
-                        <input v-model="recipe_model.prep_time.value" class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-1 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="recipe-servings" type="number" placeholder="Servings" min="1" max="20" :class="{'border-red-500': recipe_model.prep_time.error}">
+                        <input v-model="recipe_model.prep_time.value" class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-1 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="recipe-servings" type="number" placeholder="Servings" min="1" max="360" :class="{'border-red-500': recipe_model.prep_time.error}">
                         <p class="text-red-500 text-xs italic" v-if="recipe_model.prep_time.error !== ''">{{ recipe_model.prep_time.error }}</p>
                     </div>
                     <div class="w-1/2 mb-6 md:mb-0">
                         <label class="block tracking-wide text-gray-700 text-xs font-bold mb-2" for="recipe-servings">
                             Cook Time (mins)
                         </label>
-                        <input v-model="recipe_model.cook_time.value" class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-1 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="recipe-servings" type="number" placeholder="Servings" min="1" max="20" :class="{'border-red-500': recipe_model.cook_time.error}">
+                        <input v-model="recipe_model.cook_time.value" class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-1 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="recipe-servings" type="number" placeholder="Servings" min="1" max="360" :class="{'border-red-500': recipe_model.cook_time.error}">
                         <p class="text-red-500 text-xs italic" v-if="recipe_model.cook_time.error !== ''">{{ recipe_model.cook_time.error }}</p>
                     </div>
                 </div>
@@ -83,6 +87,7 @@
                     </div>
                 </div>
                 <div class="px-3">
+                    <h2 class="text-xl font-bold">Ingredients</h2>
                     <div class="flex flex-wrap relative" v-for="(ingredient, counter) in recipe_model.ingredients.value" :key="counter">
                         <div class="w-1/4 pr-3 mb-6 md:mb-0">
                             <label class="flex flex-col justify-end h-[28px] tracking-wide text-gray-700 text-xs font-bold mb-2" for="recipe-servings">
@@ -151,9 +156,10 @@
                         </button>
                     </div>
                     
-                    <button @click="add_ingredient" class="block mb-4 bg-blue-500 text-white px-4 py-2 rounded shadow-lg">Add ingredient</button>
+                    <button @click.prevent="add_ingredient" class="block mb-4 bg-blue-500 text-white px-4 py-2 rounded shadow-lg">Add Ingredient</button>
                 </div>
                 <div class="px-3">
+                    <h2 class="text-xl font-bold">Directions</h2>
                     <div class="flex flex-wrap relative" v-for="(direction, counter) in recipe_model.directions.value" :key="counter">
                         <div class="w-full pr-3 mb-6 md:mb-0">
                             <label class="flex flex-col justify-end h-[28px] tracking-wide text-gray-700 text-xs font-bold mb-2" for="recipe-servings">
@@ -168,22 +174,40 @@
                         </div>
                     </div>
                 <p class="text-red-500 text-xs italic mb-3" v-if="recipe_model.directions.error !== ''">{{ recipe_model.directions.error }}</p>
-                    <button @click.prevent="add_direction" class="block mb-4 bg-blue-500 text-white px-4 py-2 rounded shadow-lg">Add direction</button>
+                    <button @click.prevent="add_direction" class="block mb-4 bg-blue-500 text-white px-4 py-2 rounded shadow-lg">Add Direction</button>
                 </div>
             </div>
-            <input type="submit" value="Submit" class="bg-blue-500 text-white px-4 py-2 rounded shadow-lg" />
+            <div class="w-full mb-6 md:mb-0">
+                <label class="block tracking-wide text-gray-700 text-xs font-bold mb-2" for="recipe-servings">
+                    Recipe Posting Status
+                </label>
+                <div class="relative">
+                    <select v-model="recipe_model.status.value" class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="recipe-difficulty">
+                        <option value="draft">Draft</option>
+                        <option value="publish">Publish</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                    </div>
+                </div>
+                <p class="text-red-500 text-xs italic" v-if="recipe_model.status.error !== ''">{{ recipe_model.oven_temp_unit.error }}</p>
+            </div>
+            <input type="submit" value="Update Recipe" class="bg-blue-500 text-white px-4 py-2 rounded shadow-lg" />
         </form>
     </div>
 </template>
 <script setup>
+    const route = useRoute()
     const supabase = useSupabaseClient()
     const supabase_user = useSupabaseUser()
-    let { data: current_user, error } = await supabase
+    let { data: current_user, error: current_user_error} = await supabase
         .from('users')
         .select('*')
         .eq('id', supabase_user.value.id)
-        
-    let slugify_title = (title) => title.toLowerCase().replaceAll(' ', '-')
+
+    let { recipe: current_recipe } = await $fetch(`/api/recipes/${route.params.id}`)
+
+    console.log(current_recipe)
 
     let add_ingredient = () => {
         recipe_model.value.ingredients.value.push({
@@ -212,75 +236,76 @@
 
     let destructure_recipe_model = (recipe_model) => {
         return {
-            name: recipe_model.value.name.value,
-            description: recipe_model.value.description.value,
-            featured_image: recipe_model.value.featured_image.value,
-            servings: recipe_model.value.servings.value,
-            difficulty: recipe_model.value.difficulty.value,
-            prep_time: recipe_model.value.prep_time.value,
-            cook_time: recipe_model.value.cook_time.value,
-            oven_temp: recipe_model.value.oven_temp.value,
-            oven_temp_unit: recipe_model.value.oven_temp_unit.value,
-            ingredients: recipe_model.value.ingredients.value,
-            directions: recipe_model.value.directions.value
+            title: recipe_model.name.value,
+            description: recipe_model.description.value,
+            status: recipe_model.status.value,
+            servings: recipe_model.servings.value,
+            difficulty: recipe_model.difficulty.value,
+            prep_time: recipe_model.prep_time.value,
+            cook_time: recipe_model.cook_time.value,
+            oven_temp: recipe_model.oven_temp.value,
+            oven_temp_unit: recipe_model.oven_temp_unit.value,
+            ingredients: recipe_model.ingredients.value,
+            directions: recipe_model.directions.value,
+            // featured_image: recipe_model.featured_image.value,
         }
     }
 
-    let recipe_model = ref({
-        name: {
-            value: '',
-            error: ''
-        },
-        description: {
-            value: '',
-            error: ''
-        },
-        featured_image: {
-            value: 'https://placebear.com/640/' + Math.floor(Math.random() * (365 - 360 + 1) + 360),
-            error: ''
-        },
-        servings: {
-            value: '2',
-            error: ''
-        },
-        difficulty: {
-            value: 'Simple',
-            error: ''
-        },
-        prep_time: {
-            value: '',
-            error: ''
-        },
-        cook_time: {
-            value: '',
-            error: ''
-        },
-        oven_temp: {
-            value: '',
-            error: ''
-        },
-        oven_temp_unit: {
-            value: 'F',
-            error: ''
-        },
-        ingredients: {
-            value: [
-                {
-                    quantity: '4',
-                    unit: 'Litre',
-                    name: 'Chicken Stock',
-                    modifier: '',
-                }
-            ],
-            error: ''
-        },
-        directions: {
-            value: [
-                "Direction"
-            ],
-            error: ''
-        },
-    })
+    let recipe_model = ref({})
+    if(current_recipe) {
+        recipe_model.value = {
+            name: {
+                value: current_recipe.title,
+                error: ''
+            },
+            description: {
+                value: current_recipe.description,
+                error: ''
+            },
+            status: {
+                value: current_recipe.status,
+                error: ''
+            },
+            featured_image: {
+                value: 'https://placebear.com/640/' + Math.floor(Math.random() * (365 - 360 + 1) + 360),
+                error: ''
+            },
+            servings: {
+                value: current_recipe.servings,
+                error: ''
+            },
+            difficulty: {
+                value: current_recipe.difficulty,
+                error: ''
+            },
+            prep_time: {
+                value: current_recipe.prep_time,
+                error: ''
+            },
+            cook_time: {
+                value: current_recipe.cook_time,
+                error: ''
+            },
+            oven_temp: {
+                value: current_recipe.oven_temp,
+                error: ''
+            },
+            oven_temp_unit: {
+                value: current_recipe.oven_temp_unit,
+                error: ''
+            },
+            ingredients: {
+                value: current_recipe.ingredients ?? [],
+                error: ''
+            },
+            directions: {
+                value: current_recipe.directions ?? [],
+                error: ''
+            },
+        }
+    }
+
+    console.log(recipe_model.value.directions)
 
     let handleSubmit = async () => {
         let allow_submit = true
@@ -302,19 +327,22 @@
             console.log('Could not submit')
             return
         }
-        console.log('Submitting:', recipe_model.value)
+        // console.log('Submitting:', recipe_model.value)
 
-        let recipe_to_insert = destructure_recipe_model(recipe_model.value)
+        let recipe_to_update = destructure_recipe_model(recipe_model.value)
 
 
-        // const { data, error } = await supabase
-        //     .from('Recipes')
-        //     .insert([
-        //         { 
-        //             title: recipe_name.value,
-        //             slug: slugify_title(recipe_name.value.value),
-        //             user_id: current_user.id
-        //         },
-        //     ])
+        const { data, error } = await supabase
+            .from('Recipes')
+            .update([
+                { 
+                    ...recipe_to_update
+                },
+            ])
+            .eq('id', current_recipe.id)
+            .select()
+
+        console.log(data)
+        console.log(error)
     }
 </script>

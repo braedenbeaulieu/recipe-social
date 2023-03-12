@@ -4,7 +4,6 @@ declare global {
     interface Recipe {
         id?: number,
         title?: string,
-        content ?: string,
         slug?: string,
         description?: string,
         featured_image?: string,
