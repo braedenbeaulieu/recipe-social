@@ -247,7 +247,7 @@
             oven_temp_unit: recipe_model.oven_temp_unit.value,
             ingredients: recipe_model.ingredients.value,
             directions: recipe_model.directions.value,
-            // featured_image: recipe_model.featured_image.value,
+            featured_image: recipe_model.featured_image.value,
         }
     }
 

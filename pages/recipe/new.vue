@@ -54,6 +54,7 @@
                     slug: slugify_title(recipe_model.value.name.value),
                     description: recipe_model.value.description.value,
                     user_id: current_user.id,
+                    oven_temp_unit: 'F',
                     status: 'draft',
                 },
             ])
